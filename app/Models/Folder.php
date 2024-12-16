@@ -11,6 +11,8 @@ class Folder extends Model
 
     protected $fillable = ['name', 'parent_id'];
 
+    protected $with = ['children', 'files'];
+
     public function parent()
     {
         return $this->belongsTo(Folder::class, 'parent_id');

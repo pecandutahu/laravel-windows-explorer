@@ -12,7 +12,7 @@ class FolderController extends Controller
      */
     public function index()
     {
-        $folders = Folder::with('children', 'files')->whereNull('parent_id')->get();
+        $folders = Folder::whereNull('parent_id')->get();
         return response()->json($folders);
     }
 
@@ -35,7 +35,7 @@ class FolderController extends Controller
      */
     public function show($id)
     {
-        $folder = Folder::with('children', 'files')->find($id);
+        $folder = Folder::find($id);
 
         if (!$folder) {
             return response()->json(['message' => 'Folder not found'], 404);
