@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Explorer from './components/Explorer';
+import './styles/tailwind.css';
 
 const App = () => {
     return (

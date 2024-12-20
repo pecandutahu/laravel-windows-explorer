@@ -20,7 +20,7 @@ const FolderDetails = ({ folderId }) => {
                         <li key={folder.id}>{folder.name}</li>
                     ))}
                     
-                    {subfolders?.files.map(file => (
+                    {subfolders?.files?.map(file => (
                         <li key={file.id}>{file.name}</li>
                     ))}
                 </ul>
