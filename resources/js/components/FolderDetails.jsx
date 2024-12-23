@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { Typography } from '@material-tailwind/react';
 
 const FolderDetails = ({ folderId }) => {
     const [subfolders, setSubfolders] = useState([]);
@@ -13,7 +14,9 @@ const FolderDetails = ({ folderId }) => {
 
     return (
         <div>
-            <h3>Subfolders And Files</h3>
+            <Typography variant="h5" color="blue-gray">
+                Subfolders And Files
+            </Typography>
             {subfolders?.children?.length > 0 || subfolders?.files?.length > 0 ? (
                 <ul>
                     {subfolders?.children.map(folder => (

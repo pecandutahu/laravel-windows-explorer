@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import FolderTree from './FolderTree';
 import FolderDetails from './FolderDetails';
+import { Typography } from '@material-tailwind/react';
 
 
 const Explorer = () => {
@@ -19,7 +20,9 @@ const Explorer = () => {
             {selectedFolderId ? (
                 <FolderDetails folderId={selectedFolderId} />
             ) : (
-                <p>Select a folder to view its contents</p>
+                <Typography variant="h5" color="blue-gray">
+                    Subfolders And Files
+                </Typography>
             )}
         </div>
     </div>

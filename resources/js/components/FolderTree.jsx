@@ -11,28 +11,31 @@ import {
     AccordionHeader,
     AccordionBody,
 } from "@material-tailwind/react";
-import {
-    PresentationChartBarIcon,
-} from "@heroicons/react/24/solid";
-import { ChevronRightIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
+import { ChevronDownIcon } from "@heroicons/react/24/outline";
 
 const FolderTree = ({ onFolderClick }) => {
-    const [folders, setFolders] = useState([]);
-    const [openFolderId, setOpenFolderId] = useState(null);
-    const [folderChildren, setFolderChildren] = useState({});
+    const [folders, setFolders] = useState([]); // tampung folder utama
+    const [openFolderIds, setOpenFolderIds] = useState([]); // tampung folder yang expanded
+    const [folderChildren, setFolderChildren] = useState({}); // untuk menampung subfolder
 
-    const handleOpen = (folder) => {
+    const toggleFolder = (folder) => {
         const folderId = folder.id;
-        if (openFolderId === folderId) {
-            setOpenFolderId(null);
+
+        // Tututp folder jika kebuka
+        if (openFolderIds.includes(folderId)) {
+            setOpenFolderIds((prev) => prev.filter((id) => id !== folderId));
         } else {
-            setOpenFolderId(folderId);
+            // expand folder
+            setOpenFolderIds((prev) => [...prev, folderId]);
+
+            // Get subfolder jika belum ada di state
             if (!folderChildren[folderId]) {
-                axios.get(`/api/folders/${folderId}/subfolder`)
+                axios
+                    .get(`/api/folders/${folderId}/subfolder`)
                     .then((response) => {
-                        setFolderChildren(prev => ({
+                        setFolderChildren((prev) => ({
                             ...prev,
-                            [folderId]: response.data
+                            [folderId]: response.data,
                         }));
                     })
                     .catch((error) => console.error(error));
@@ -41,74 +44,35 @@ const FolderTree = ({ onFolderClick }) => {
     };
 
     useEffect(() => {
-        axios.get('/api/folders')
+        // get parent folder ketika init
+        axios
+            .get('/api/folders')
             .then((response) => setFolders(response.data))
             .catch((error) => console.error(error));
     }, []);
 
-    // Depreacated
     const renderFolders = (folders) => {
-        return folders.map(folder => (
-            <li key={folder.id} style={{ cursor: 'pointer' }}>
-                <div onClick={() => onFolderClick(folder.id)}>
-                    {folder.name}
-                </div>
-                {folder.children && folder.children.length > 0 && (
-                    <ul>{renderFolders(folder.children)}</ul>
+        return folders.map((folder) => (
+            <List key={folder.id} className="p-0">
+                <ListItem className="flex items-center">
+                    <ListItemPrefix>
+                        <ChevronDownIcon
+                            className={`h-5 w-5 cursor-pointer transition-transform ${
+                                openFolderIds.includes(folder.id) ? 'rotate-180' : ''
+                            }`}
+                            onClick={() => toggleFolder(folder)}
+                        />
+                    </ListItemPrefix>
+                    <Typography onClick={() => onFolderClick(folder.id)} className="cursor-pointer">
+                        {folder.name}
+                    </Typography>
+                </ListItem>
+                {openFolderIds.includes(folder.id) && folderChildren[folder.id] && (
+                    <div className="ml-4">{renderFolders(folderChildren[folder.id])}</div>
                 )}
-            </li>
+            </List>
         ));
     };
-
-    const renderParentFolders = (folders) => {
-        return folders.map(folder => (
-            <Accordion
-                key={folder.id}
-                open={openFolderId === folder.id}
-                icon={
-                    <ChevronDownIcon onClick={() => handleOpen(folder)} 
-                        strokeWidth={2.5}
-                        className={`mx-auto h-4 w-4 transition-transform ${openFolderId === folder.id ? "rotate-180" : ""}`}
-                    />
-                }
-            >
-                { folder.children && folder.children.length > 0 ? (
-                    <div>
-                        <ListItem className="p-0">
-                            <AccordionHeader onClick={() => onFolderClick(folder.id)} className="border-b-0 p-3">
-                                <ListItemPrefix>
-                                    <PresentationChartBarIcon className="h-5 w-5" />
-                                </ListItemPrefix>
-                                <Typography color="blue-gray" className="font-normal">
-                                    {folder.name}
-                                </Typography>
-                            </AccordionHeader>
-                        </ListItem>
-                        <AccordionBody className="py-1">
-                            {folderChildren[folder.id] && folderChildren[folder.id].length > 0 ? (
-                                renderParentFolders(folderChildren[folder.id])
-                            ) : (
-                                <p>No subfolders</p>
-                            )}
-                        </AccordionBody>
-                        <hr className="my-2 border-blue-gray-50" />
-                    </div>
-                ) 
-                :
-                (
-                    <List className="p-0">
-                        <ListItem onClick={() => onFolderClick(folder.id)} >
-                            <ListItemPrefix>
-                            <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
-                            </ListItemPrefix>
-                            {folder.name}
-                        </ListItem>
-                    </List>
-                )
-                }
-            </Accordion>
-        ));
-    }
 
     return (
         <div>
@@ -118,12 +82,11 @@ const FolderTree = ({ onFolderClick }) => {
                         Explorer
                     </Typography>
                 </div>
-                <List>
-                    {renderParentFolders(folders)}
-                </List>
+                {renderFolders(folders)}
             </Card>
         </div>
     );
 };
+
 
 export default FolderTree;
