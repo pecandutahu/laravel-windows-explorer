@@ -1,17 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 
 import {
     Card,
     Typography,
     List,
     ListItem,
-    ListItemPrefix,
-    Accordion,
-    AccordionHeader,
-    AccordionBody,
+    ListItemPrefix
 } from "@material-tailwind/react";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
+import axiosInstance from '../axiosInstance';
 
 const FolderTree = ({ onFolderClick }) => {
     const [folders, setFolders] = useState([]); // tampung folder utama
@@ -30,7 +27,7 @@ const FolderTree = ({ onFolderClick }) => {
 
             // Get subfolder jika belum ada di state
             if (!folderChildren[folderId]) {
-                axios
+                axiosInstance
                     .get(`/api/folders/${folderId}/subfolder`)
                     .then((response) => {
                         setFolderChildren((prev) => ({
@@ -45,13 +42,17 @@ const FolderTree = ({ onFolderClick }) => {
 
     useEffect(() => {
         // get parent folder ketika init
-        axios
+        axiosInstance
             .get('/api/folders')
             .then((response) => setFolders(response.data))
             .catch((error) => console.error(error));
     }, []);
 
     const renderFolders = (folders) => {
+        
+        console.log('folders', folders)
+        console.log('folderChildren', folderChildren)
+        console.log('openFolderIds', openFolderIds)
         return folders.map((folder) => (
             <List key={folder.id} className="p-0">
                 <ListItem className="flex items-center">
