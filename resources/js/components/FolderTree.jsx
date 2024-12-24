@@ -14,6 +14,7 @@ const FolderTree = ({ onFolderClick }) => {
     const [folders, setFolders] = useState([]); // tampung folder utama
     const [openFolderIds, setOpenFolderIds] = useState([]); // tampung folder yang expanded
     const [folderChildren, setFolderChildren] = useState({}); // untuk menampung subfolder
+    const [searchTerm, setSearchterm] = useState('')
 
     const toggleFolder = (folder) => {
         const folderId = folder.id;
@@ -40,6 +41,21 @@ const FolderTree = ({ onFolderClick }) => {
         }
     };
 
+    const handleChange = (event) => {
+        setSearchterm(event.target.value)
+    }
+    const handleSearch = (event) => {
+        console.log('searchTerm', searchTerm)
+        axiosInstance
+            .get('/api/folders', {
+                params: {
+                    search:searchTerm
+                }
+            })
+            .then((response) => setFolders(response.data))
+            .catch((error) => console.error(error));
+    }
+
     useEffect(() => {
         // get parent folder ketika init
         axiosInstance
@@ -50,9 +66,9 @@ const FolderTree = ({ onFolderClick }) => {
 
     const renderFolders = (folders) => {
         
-        console.log('folders', folders)
-        console.log('folderChildren', folderChildren)
-        console.log('openFolderIds', openFolderIds)
+        // console.log('folders', folders)
+        // console.log('folderChildren', folderChildren)
+        // console.log('openFolderIds', openFolderIds)
         return folders.map((folder) => (
             <List key={folder.id} className="p-0">
                 <ListItem className="flex items-center">
@@ -79,6 +95,25 @@ const FolderTree = ({ onFolderClick }) => {
         <div>
             <Card className="h-[calc(100vh-2rem)] w-full max-w-[20rem] p-4 shadow-xl shadow-blue-gray-900/5">
                 <div className="mb-2 p-4">
+                    
+                    <input
+                        type="text"
+                        placeholder="Search"
+                        value={searchTerm}
+                        onChange={handleChange}
+                    />
+                     <button
+                        onClick={handleSearch}
+                        style={{
+                        padding: '8px 16px',
+                        backgroundColor: '#4CAF50',
+                        color: 'white',
+                        border: 'none',
+                        cursor: 'pointer',
+                        }}
+                    >
+                        Search
+                    </button>
                     <Typography variant="h5" color="blue-gray">
                         Explorer
                     </Typography>

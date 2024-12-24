@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Typography } from '@material-tailwind/react';
+import axiosInstance from '../axiosInstance';
 
 const FolderDetails = ({ folderId }) => {
     const [subfolders, setSubfolders] = useState([]);
 
     useEffect(() => {
         // Fetch subfolders for the selected folder
-        axios.get(`/api/folders/${folderId}`)
+        axiosInstance.get(`/api/folders/${folderId}`)
             .then((response) => setSubfolders(response.data))
             .catch((error) => console.error(error));
     }, [folderId]);

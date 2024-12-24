@@ -10,9 +10,14 @@ class FolderController extends Controller
     /**
      * Display a listing of the folders.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $folders = Folder::with('children.files')->whereNull('parent_id')->get();
+        $folder = Folder::with('children.files');
+        if(!$request->search) {
+            $folders = $folder->whereNull('parent_id')->get();
+        } else {
+            $folders = $folder->where('name', 'like', '%' . $request->search . '%')->get();
+        }
         return response()->json($folders);
     }
 
